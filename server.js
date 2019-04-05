@@ -12,23 +12,34 @@ var cheerio = require("cheerio");
 var db = require("./models");
 
 var PORT = 3000;
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/unit18Populater";
-// Initialize Express
 var app = express();
-var exphbs = require("express-handlebars");
-// Configure middleware
 
 // Use morgan logger for logging requests
 app.use(logger("dev"));
-// Parse request body as JSON
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
 
-// Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/newsscraper", { useNewUrlParser: true });
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/unit18Populater";
+mongoose.Promise=Promise;
+mongoose.connect(MONGODB_URI);
 
+
+// Initialize Express
+
+var exphbs = require("express-handlebars");
+// Configure middleware
+
+
+// Parse request body as JSON
+
+
+
+// Connect to the Mongo DB
+// mongoose.connect("mongodb://localhost/", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
 // Routes
 
 // A GET route for scraping the the onion website
@@ -69,12 +80,12 @@ app.get("/scrape", function(req, res) {
     // Send a message to the client
     res.send("Scrape Complete");
   })
-  .catch(function(err) {
-    res.json(err);
-  });
+//   .catch(function(err) {
+//     res.json(err);
+//   });
 
-res.redirect("/");
-  });
+// res.redirect("/");
+//   });
 
 
 // Route for getting all Articles from the db
