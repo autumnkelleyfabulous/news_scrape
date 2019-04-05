@@ -58,6 +58,9 @@ $(document).on("click", "#savenote", function() {
       body: $("#bodyinput").val()
     }
   })
+
+
+
     // With that done
     .then(function(data) {
       // Log the response
@@ -69,4 +72,38 @@ $(document).on("click", "#savenote", function() {
   // Also, remove the values entered in the input and textarea for note entry
   $("#titleinput").val("");
   $("#bodyinput").val("");
+});
+
+$(document).on("click", ".save-button", function() {
+  var id = $(this).attr("data-id");
+  $.ajax({
+    method: "POST",
+    url: "/articles/save/" + id,
+    data: {
+    }
+  })
+
+    .done(function(data) {
+
+      console.log(data);
+
+      location.reload();
+    });
+});
+
+$(document).on("click", ".unsave-button", function() {
+  var id = $(this).attr("data-id");
+  $.ajax({
+    method: "POST",
+    url: "/articles/unsave/" + id,
+    data: {
+    }
+  })
+
+    .done(function(data) {
+
+      console.log(data);
+
+      location.reload();
+    });
 });

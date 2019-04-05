@@ -12,8 +12,7 @@ var cheerio = require("cheerio");
 var db = require("./models");
 
 var PORT = 3000;
-// var MONGODB_URI = process.env.MONGODB_URI ||
-
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newsscraper";
 // Initialize Express
 var app = express();
 var exphbs = require("express-handlebars");
@@ -28,7 +27,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/newsscraper", { useNewUrlParser: true });
 
 // Routes
 
@@ -118,14 +117,45 @@ app.post("/articles/:id", function(req, res) {
       // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
       // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
       // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-      return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+      return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true }),{$push: {comments: dbComment}}.then(function(dbRes) {
+        res.redirect("/");
+      });
     })
-    .then(function(dbArticle) {
-      // If we were able to successfully update an Article, send it back to the client
-      res.json(dbArticle);
+  
+  });
+  
+  app.post("/articles/delete/:id", function (req, res) {
+    db.Comment.remove({_id: req.params.id}).then(function (dbRemove) {
+      res.json(dbRemove);
+    });
+  });
+  
+  app.post("/articles/save/:id", function (req, res) {
+    db.Article.findOneAndUpdate({_id: req.params.id}, {saved: true}).then(function (dbRes) {
+      res.redirect("/");
     })
-    .catch(function(err) {
-      // If an error occurred, send it to the client
+  })
+  
+  app.post("/articles/unsave/:id", function (req, res) {
+    db.Article.findOneAndUpdate({_id: req.params.id}, {saved: false}).then(function (dbRes) {
+      res.redirect("/");
+    })
+  })
+
+    // .then(function(dbArticle) {
+    //   // If we were able to successfully update an Article, send it back to the client
+    //   res.json(dbArticle);
+    // })
+    // .catch(function(err) {
+    //   // If an error occurred, send it to the client
+    //   res.json(err);
+    // });
+
+app.get("/savedarticles", function(req, res) {
+  // TODO: Finish the route so it grabs all of the articles
+    db.Article.find({saved: true}).populate("comments").then(function(data) {
+      res.render("saved", {articles: data});
+    }).catch(function (err) {
       res.json(err);
     });
 });
